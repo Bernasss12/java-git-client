@@ -7,8 +7,7 @@ public record Blob(String hash, String contents) implements GitObject {
     }
 
     public byte[] toBytes() {
-        String header = STR."blob \{contents.length()}";
-        return STR."\{header}\0\{contents}".getBytes();
+        return STR."blob \{contents.length()}\0\{contents}".getBytes();
     }
 
     @Override

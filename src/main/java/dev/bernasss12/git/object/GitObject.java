@@ -1,17 +1,59 @@
 package dev.bernasss12.git.object;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import java.util.zip.InflaterInputStream;
+
+import dev.bernasss12.git.util.ArrayUtils;
+
 public interface GitObject {
 
-    static GitObject fromHash(String hash) {
-        RawObject obj = RawObject.fromHash(hash);
-        return fromRawObject(obj);
+    public static final Path ROOT = Paths.get(".git", "objects");
+
+    /**
+     * Finds the git file path by its hash, reads/inflates its contents, determines the type of file and creates an object representing that file.
+     * @param hash SHA-1 hash generated from the original file.
+     * @return GitObject with all the data the git file has.
+     */
+    public static GitObject readFromHash(String hash) {
+        try (final InflaterInputStream inflater = new InflaterInputStream(new FileInputStream(ROOT.resolve(pathFromHash(hash)).toFile()))) {
+            byte[] data = inflater.readAllBytes();
+            final int delimiter = ArrayUtils.indexOf(data, '\0');
+            final List<String> meta = Arrays.stream(new String(Arrays.copyOf(data, delimiter)).split(" ")).toList();
+            byte[] content = Arrays.copyOfRange(data, delimiter + 1, data.length);
+            String type = meta.getFirst();
+            writeFromPath(Paths.get(""));
+            return switch (type) {
+                case "blob" -> Blob.fromBytes(hash, content);
+                default -> throw new IllegalArgumentException(STR."\"\{type}\" is not a supported git file type.");
+            };
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private static GitObject fromRawObject(RawObject object) {
-        return switch (object.type) {
-            case "blob" -> new GitBlobObject(object);
-            default -> throw new IllegalArgumentException(STR."\"\{object.type}\" is not a supported git file type.");
-        };
+    /**
+     * Generates a deflated and formatted git file from the file that it's been given.
+     * @param path file that will be converted to git file.
+     */
+    public static String writeFromPath(Path path) {
+        Blob blob = new Blob("asdada", "testcontenteasdaon asudausdasudn");
+        byte[] bytes = blob.toBytes();
+        return "";
+    }
+
+    private static Path pathFromHash(String hash) {
+        return Paths.get(hash.substring(0, 2), hash.substring(2));
+    }
+
+    private static String hashFromPath(Path path) {
+        String start = path.getParent().getFileName().toString();
+        String end = path.getFileName().toString();
+        return start + end;
     }
 
     String getContentAsString();

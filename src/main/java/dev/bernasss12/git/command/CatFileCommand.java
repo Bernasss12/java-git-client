@@ -23,7 +23,7 @@ public class CatFileCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         if (prettyPrint) {
-            GitObject obj = GitObject.fromHash(hash);
+            GitObject obj = GitObject.readFromHash(hash);
             System.out.print(obj.getContentAsString());
         }
         return null;

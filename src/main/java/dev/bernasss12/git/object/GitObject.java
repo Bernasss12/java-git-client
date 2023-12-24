@@ -12,14 +12,14 @@ import dev.bernasss12.git.util.ArrayUtils;
 
 public interface GitObject {
 
-    public static final Path ROOT = Paths.get(".git", "objects");
+    Path ROOT = Paths.get(".git", "objects");
 
     /**
      * Finds the git file path by its hash, reads/inflates its contents, determines the type of file and creates an object representing that file.
      * @param hash SHA-1 hash generated from the original file.
      * @return GitObject with all the data the git file has.
      */
-    public static GitObject readFromHash(String hash) {
+    static GitObject readFromHash(String hash) {
         try (final InflaterInputStream inflater = new InflaterInputStream(new FileInputStream(ROOT.resolve(pathFromHash(hash)).toFile()))) {
             byte[] data = inflater.readAllBytes();
             final int delimiter = ArrayUtils.indexOf(data, '\0');
@@ -29,7 +29,7 @@ public interface GitObject {
             writeFromPath(Paths.get(""));
             return switch (type) {
                 case "blob" -> Blob.fromBytes(hash, content);
-                default -> throw new IllegalArgumentException(STR."\"\{type}\" is not a supported git file type.");
+                default -> throw new IllegalArgumentException("\"" + type + " is not a supported git file type.");
             };
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -40,7 +40,7 @@ public interface GitObject {
      * Generates a deflated and formatted git file from the file that it's been given.
      * @param path file that will be converted to git file.
      */
-    public static String writeFromPath(Path path) {
+    static String writeFromPath(Path path) {
         Blob blob = new Blob("asdada", "testcontenteasdaon asudausdasudn");
         byte[] bytes = blob.toBytes();
         return "";

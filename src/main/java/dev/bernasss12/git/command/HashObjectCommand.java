@@ -1,9 +1,9 @@
 package dev.bernasss12.git.command;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
+import dev.bernasss12.git.object.Blob;
 import dev.bernasss12.git.object.GitObject;
 import picocli.CommandLine.*;
 
@@ -25,8 +25,10 @@ public class HashObjectCommand implements Callable<Void> {
 
     @Override
     public Void call() {
+        Blob blob = Blob.readBlobFromFile(file);
+        System.out.println(blob.getHash());
         if (write) {
-            GitObject.writeFromPath(file);
+            GitObject.writeToFile(blob);
             return null;
         }
         return null;

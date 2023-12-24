@@ -1,6 +1,5 @@
 package dev.bernasss12.git.object;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -46,23 +45,6 @@ public interface GitObject {
         file.getParentFile().mkdirs();
         try (final DeflaterOutputStream deflater = new DeflaterOutputStream(new FileOutputStream(file))) {
             deflater.write(object.toBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Generates a deflated and formatted git file from the file that it's been given.
-     *
-     * @param path file that will be converted to git file.
-     */
-    static void writeFromPath(Path path) {
-        try (FileInputStream input = new FileInputStream(path.toFile())) {
-            byte[] contents = input.readAllBytes();
-            Blob object = Blob.fromBytes(contents);
-            writeToFile(object);
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found.");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -7,7 +7,8 @@ import picocli.CommandLine;
         subcommands = {
                 InitCommand.class,
                 CatFileCommand.class,
-                CleanCommand.class
+                CleanCommand.class,
+                HashObjectCommand.class
         }
 )
 public class GitCommand {}

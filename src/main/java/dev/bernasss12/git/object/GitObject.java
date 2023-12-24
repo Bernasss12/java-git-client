@@ -1,11 +1,16 @@
 package dev.bernasss12.git.object;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
 import dev.bernasss12.git.util.ArrayUtils;
@@ -16,6 +21,7 @@ public interface GitObject {
 
     /**
      * Finds the git file path by its hash, reads/inflates its contents, determines the type of file and creates an object representing that file.
+     *
      * @param hash SHA-1 hash generated from the original file.
      * @return GitObject with all the data the git file has.
      */
@@ -26,9 +32,8 @@ public interface GitObject {
             final List<String> meta = Arrays.stream(new String(Arrays.copyOf(data, delimiter)).split(" ")).toList();
             byte[] content = Arrays.copyOfRange(data, delimiter + 1, data.length);
             String type = meta.getFirst();
-            writeFromPath(Paths.get(""));
             return switch (type) {
-                case "blob" -> Blob.fromBytes(hash, content);
+                case "blob" -> Blob.fromBytes(content);
                 default -> throw new IllegalArgumentException("\"" + type + " is not a supported git file type.");
             };
         } catch (IOException e) {
@@ -36,14 +41,31 @@ public interface GitObject {
         }
     }
 
+    static void writeToFile(GitObject object) {
+        File file = ROOT.resolve(pathFromHash(object.getHash())).toFile();
+        file.getParentFile().mkdirs();
+        try (final DeflaterOutputStream deflater = new DeflaterOutputStream(new FileOutputStream(file))) {
+            deflater.write(object.toBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * Generates a deflated and formatted git file from the file that it's been given.
+     *
      * @param path file that will be converted to git file.
      */
-    static String writeFromPath(Path path) {
-        Blob blob = new Blob("asdada", "testcontenteasdaon asudausdasudn");
-        byte[] bytes = blob.toBytes();
-        return "";
+    static void writeFromPath(Path path) {
+        try (FileInputStream input = new FileInputStream(path.toFile())) {
+            byte[] contents = input.readAllBytes();
+            Blob object = Blob.fromBytes(contents);
+            writeToFile(object);
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found.");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static Path pathFromHash(String hash) {
@@ -57,4 +79,8 @@ public interface GitObject {
     }
 
     String getContentAsString();
+
+    byte[] toBytes();
+
+    String getHash();
 }

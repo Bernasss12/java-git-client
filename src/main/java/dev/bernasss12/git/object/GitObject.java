@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.zip.DeflaterOutputStream;
@@ -33,6 +35,7 @@ public interface GitObject {
             String type = meta.getFirst();
             return switch (type) {
                 case "blob" -> Blob.fromBytes(content);
+                case "tree" -> Tree.fromBytes(content);
                 default -> throw new IllegalArgumentException("\"" + type + " is not a supported git file type.");
             };
         } catch (IOException e) {
@@ -64,5 +67,13 @@ public interface GitObject {
 
     byte[] toBytes();
 
-    String getHash();
+    default String getHash() {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            byte[] hash = digest.digest(toBytes());
+            return ArrayUtils.byteArrayToHexString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

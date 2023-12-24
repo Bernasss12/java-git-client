@@ -4,7 +4,8 @@ import dev.bernasss12.git.command.GitCommand;
 import picocli.CommandLine;
 
 class Main {
-    void main(String[] args) {
+    public static void main(String[] args) {
+        System.out.println(System.getProperty("java.version"));
         new CommandLine(new GitCommand()).execute(args);
     }
 }

@@ -1,6 +1,10 @@
+package dev.bernasss12.git;
+
 import dev.bernasss12.git.command.GitCommand;
 import picocli.CommandLine;
 
-void main(String[] args) {
-    new CommandLine(new GitCommand()).execute(args);
+class Main {
+    void main(String[] args) {
+        new CommandLine(new GitCommand()).execute(args);
+    }
 }

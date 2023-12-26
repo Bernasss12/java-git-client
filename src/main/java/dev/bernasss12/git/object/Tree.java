@@ -14,12 +14,12 @@ public record Tree(List<Entry> entries) implements GitObject {
         do {
             int nullByte = ArrayUtils.indexOf(remaining, '\0');
             int lastByte = nullByte + 21;
-            String meta = new String(Arrays.copyOf(remaining, nullByte));
+            String[] meta = new String(Arrays.copyOf(remaining, nullByte)).split(" ");
             byte[] hash = Arrays.copyOfRange(remaining, nullByte + 1, lastByte);
+            entries.add(new Entry(Integer.parseInt(meta[0]), hash, meta[1]));
             remaining = Arrays.copyOfRange(remaining, lastByte,remaining.length);
-            // TODO actually finish this xD
         } while (remaining.length != 0);
-        return null;
+        return new Tree(entries);
     }
 
     @Override

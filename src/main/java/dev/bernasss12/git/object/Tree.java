@@ -39,6 +39,7 @@ public record Tree(List<Entry> entries) implements GitObject {
         List<Entry> entries = new ArrayList<>();
         for (File child : children) {
             EntryMode mode;
+            if (child.getName().startsWith(".")) continue;
             if (child.isDirectory()) {
                 mode = EntryMode.DIRECTORY;
                 Tree childTree = Tree.fromPath(child.toPath());

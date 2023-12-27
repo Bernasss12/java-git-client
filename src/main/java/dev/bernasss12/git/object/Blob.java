@@ -34,4 +34,9 @@ public record Blob(String contents) implements GitObject {
         return contents;
     }
 
+    @Override
+    public String getType() {
+        return "blob";
+    }
+
 }

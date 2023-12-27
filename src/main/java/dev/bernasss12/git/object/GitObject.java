@@ -18,6 +18,23 @@ import dev.bernasss12.git.util.ArrayUtils;
 
 public interface GitObject {
 
+    public static GitObject NotFound = new GitObject() {
+        @Override
+        public String getContentAsString() {
+            return "";
+        }
+
+        @Override
+        public String getType() {
+            return "<n/a>";
+        }
+
+        @Override
+        public byte[] toBytes() {
+            return new byte[0];
+        }
+    };
+
     Path ROOT = Paths.get(".git", "objects");
 
     /**
@@ -36,10 +53,26 @@ public interface GitObject {
             return switch (type) {
                 case "blob" -> Blob.fromBytes(content);
                 case "tree" -> Tree.fromBytes(content);
-                default -> throw new IllegalArgumentException("\"" + type + " is not a supported git file type.");
+                default -> throw new IllegalArgumentException("\"" + type + "\" is not a supported git file type.");
             };
+        } catch (FileNotFoundException e) {
+            return NotFound;
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Tries to read the file from hash.
+     * @param hash Hash of file contents
+     * @return The object read from the disk or null if the types don't match.
+     */
+    static <T extends GitObject> T readFromHashAs(String hash) {
+        try {
+            return (T) readFromHash(hash);
+        } catch (ClassCastException e) {
+            System.err.println(hash + " is not of expected type.");
+            return null;
         }
     }
 
@@ -64,6 +97,7 @@ public interface GitObject {
     }
 
     String getContentAsString();
+    String getType();
 
     byte[] toBytes();
 

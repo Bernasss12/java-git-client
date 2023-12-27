@@ -8,7 +8,8 @@ import picocli.CommandLine;
                 InitCommand.class,
                 CatFileCommand.class,
                 CleanCommand.class,
-                HashObjectCommand.class
+                HashObjectCommand.class,
+                LsTreeCommand.class
         }
 )
 public class GitCommand {}

@@ -18,6 +18,8 @@ public class WriteTree implements Callable<Void> {
         GitObject.writeToFile(root);
         System.out.println(root.getHash());
         GitObject read = GitObject.readFromHashAs(root.getHash());
+        System.err.print(root.getContentAsString());
+        System.err.print(read.getContentAsString());
         return null;
     }
 }

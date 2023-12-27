@@ -27,7 +27,7 @@ public record Tree(List<Entry> entries) implements GitObject {
             entries.add(new Entry(Integer.parseInt(meta[0]), hash, meta[1]));
             remaining = Arrays.copyOfRange(remaining, lastByte, remaining.length);
         } while (remaining.length != 0);
-        return new Tree(entries);
+        return new Tree(entries.stream().sorted(Comparator.comparing(entry -> entry.file)).toList());
     }
 
     public static Tree fromPath(Path path) {
@@ -65,7 +65,7 @@ public record Tree(List<Entry> entries) implements GitObject {
                 );
             }
         }
-        return new Tree(entries);
+        return new Tree(entries.stream().sorted(Comparator.comparing(entry -> entry.file)).toList());
     }
 
     /**
@@ -108,7 +108,7 @@ public record Tree(List<Entry> entries) implements GitObject {
 
     @Override
     public byte[] toBytes() {
-        List<byte[]> content = entries.stream().sorted(Comparator.comparing(entry -> entry.file)).map(Entry::toBytes).toList();
+        List<byte[]> content = entries.stream().map(Entry::toBytes).toList();
         int length = content.stream().map(it -> it.length).reduce(0, Integer::sum);
         byte[] tree = String.format("tree %d\0", length).getBytes();
         byte[] result = new byte[length + tree.length];

@@ -15,8 +15,8 @@ public class WriteTree implements Callable<Void> {
     @Override
     public Void call(){
         Tree root = Tree.fromPath(Paths.get("").toAbsolutePath());
-        System.err.printf("Written tree with hash: %s", root.getHash());
         GitObject.writeToFile(root);
+        System.out.println(root.getHash());
         return null;
     }
 }

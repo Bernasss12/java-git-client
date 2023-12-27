@@ -17,6 +17,7 @@ public class WriteTree implements Callable<Void> {
         Tree root = Tree.fromPath(Paths.get("").toAbsolutePath());
         GitObject.writeToFile(root);
         System.out.println(root.getHash());
+        GitObject read = GitObject.readFromHashAs(root.getHash());
         return null;
     }
 }

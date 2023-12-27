@@ -1,6 +1,7 @@
 package dev.bernasss12.git.object;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.Objects;
 
 import dev.bernasss12.git.util.ArrayUtils;
 import static dev.bernasss12.git.util.ArrayUtils.byteArrayToHexString;
+import static dev.bernasss12.git.util.ArrayUtils.hexStringToByteArray;
 
 public record Tree(List<Entry> entries) implements GitObject {
 
@@ -105,7 +107,14 @@ public record Tree(List<Entry> entries) implements GitObject {
 
     @Override
     public byte[] toBytes() {
-        return new byte[0];
+        List<byte[]> content = entries.stream().map(Entry::toBytes).toList();
+        int length = content.stream().map(it -> it.length).reduce(0, Integer::sum);
+        byte[] tree = String.format("tree %d\0", length).getBytes();
+        byte[] result = new byte[length + tree.length];
+        ByteBuffer buffer = ByteBuffer.wrap(result);
+        buffer.put(tree);
+        content.forEach(buffer::put);
+        return buffer.array();
     }
 
     public enum EntryMode {
@@ -158,9 +167,21 @@ public record Tree(List<Entry> entries) implements GitObject {
 
         public Entry(EntryMode mode, GitObject obj, String file) {
             this.permissions = mode;
+            this.obj = obj;
             this.hash = obj.getHash();
             this.file = file;
             this.type = obj.getType();
+        }
+
+        public byte[] toBytes() {
+            byte[] meta = String.format("%d %s", permissions.mode, file).getBytes();
+            byte[] hashBytes = hexStringToByteArray(hash);
+            byte[] result = new byte[meta.length + hashBytes.length + 1];
+            ByteBuffer bb = ByteBuffer.wrap(result);
+            bb.put(meta);
+            bb.put((byte) 0);
+            bb.put(hashBytes);
+            return bb.array();
         }
 
         @Override

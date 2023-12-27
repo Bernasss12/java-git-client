@@ -1,4 +1,4 @@
-package dev.bernasss12.git.command;
+package dev.bernasss12.git.command.subcommands;
 
 import java.nio.file.Path;
 import java.util.concurrent.Callable;

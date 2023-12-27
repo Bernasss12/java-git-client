@@ -1,4 +1,4 @@
-package dev.bernasss12.git.command;
+package dev.bernasss12.git.command.subcommands;
 
 import java.io.File;
 import java.io.IOException;

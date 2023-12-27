@@ -1,5 +1,8 @@
 package dev.bernasss12.git.object;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,9 +27,48 @@ public record Tree(List<Entry> entries) implements GitObject {
         return new Tree(entries);
     }
 
+    public static Tree fromPath(Path path) {
+        File tree = path.toFile();
+        if (!tree.exists() || !tree.isDirectory()) {
+            throw new InvalidParameterException("Path must point to a real directory.");
+        }
+        File[] children = tree.listFiles();
+        List<Entry> entries = new ArrayList<>();
+        for (File child : children) {
+            EntryMode mode;
+            if (child.isDirectory()) {
+                mode = EntryMode.DIRECTORY;
+                Tree childTree = Tree.fromPath(child.toPath());
+                entries.add(
+                        new Entry(
+                                mode,
+                                childTree,
+                                child.getName()
+                        )
+                );
+            } else {
+                mode = child.canExecute() ?
+                        EntryMode.REGULAR_EXECUTABLE :
+                        child.canWrite() ?
+                                EntryMode.REGULAR_NON_EXECUTABLE_GROUP_WRITABLE :
+                                EntryMode.REGULAR_NON_EXECUTABLE;
+                Blob childBlob = Blob.readBlobFromFile(child.toPath());
+                entries.add(
+                        new Entry(
+                                mode,
+                                childBlob,
+                                child.getName()
+                        )
+                );
+            }
+        }
+        return new Tree(entries);
+    }
+
     /**
-     * Writes the whole tree recursively.
-     * @param sb string builder for adding information recursively to the result.
+     * Writes the whole tree recursively. Unused for the challenge.
+     *
+     * @param sb    string builder for adding information recursively to the result.
      * @param level indentation level representing relationship with adjacent lines.
      * @return the full tree starting from when the method was called with a null string builder param.
      */
@@ -34,7 +76,7 @@ public record Tree(List<Entry> entries) implements GitObject {
         if (sb == null) {
             sb = new StringBuilder();
         }
-        for(Entry e : entries) {
+        for (Entry e : entries) {
             sb.append("  ".repeat(level));
             if (level > 0) {
                 sb.append("- ");
@@ -66,9 +108,38 @@ public record Tree(List<Entry> entries) implements GitObject {
         return new byte[0];
     }
 
+    public enum EntryMode {
+        DIRECTORY(40000),
+        REGULAR_NON_EXECUTABLE(100644),
+        REGULAR_NON_EXECUTABLE_GROUP_WRITABLE(100664),
+        REGULAR_EXECUTABLE(100755),
+        SYMBOLIC_LINK(120000),
+        GITLINK(160000);
+
+        final int mode;
+
+        EntryMode(int mode) {
+            this.mode = mode;
+        }
+
+        static EntryMode fromMode(int mode) {
+            for (EntryMode m : values()) {
+                if (m.mode == mode) {
+                    return m;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%06d", mode);
+        }
+    }
+
     public static class Entry {
 
-        private final int permissions;
+        private final EntryMode permissions;
         private final String hash;
         public final String file;
         private String type;
@@ -76,7 +147,7 @@ public record Tree(List<Entry> entries) implements GitObject {
         private GitObject obj;
 
         public Entry(int permissions, byte[] hashBytes, String file) {
-            this.permissions = permissions;
+            this.permissions = EntryMode.fromMode(permissions);
             this.hash = byteArrayToHexString(hashBytes);
             this.file = file;
             try {
@@ -85,9 +156,16 @@ public record Tree(List<Entry> entries) implements GitObject {
             } catch (Exception ignored) {}
         }
 
+        public Entry(EntryMode mode, GitObject obj, String file) {
+            this.permissions = mode;
+            this.hash = obj.getHash();
+            this.file = file;
+            this.type = obj.getType();
+        }
+
         @Override
         public String toString() {
-            return String.format("%06d %s %s    %s", permissions, type, hash, file);
+            return String.format("%s %s %s    %s", permissions, type, hash, file);
         }
     }
 }

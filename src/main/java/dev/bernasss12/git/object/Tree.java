@@ -7,12 +7,11 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Objects;
 
 import dev.bernasss12.git.util.ArrayUtils;
-import static dev.bernasss12.git.util.ArrayUtils.byteArrayToHexString;
-import static dev.bernasss12.git.util.ArrayUtils.hexStringToByteArray;
 
 public record Tree(List<Entry> entries) implements GitObject {
 
@@ -39,7 +38,7 @@ public record Tree(List<Entry> entries) implements GitObject {
         List<Entry> entries = new ArrayList<>();
         for (File child : children) {
             EntryMode mode;
-            if (child.getName().startsWith(".")) continue;
+            if (child.getName().startsWith(".")) continue; // TODO implement gitignore at some point
             if (child.isDirectory()) {
                 mode = EntryMode.DIRECTORY;
                 Tree childTree = Tree.fromPath(child.toPath());
@@ -159,7 +158,7 @@ public record Tree(List<Entry> entries) implements GitObject {
 
         public Entry(int permissions, byte[] hashBytes, String file) {
             this.permissions = EntryMode.fromMode(permissions);
-            this.hash = byteArrayToHexString(hashBytes);
+            this.hash = HexFormat.of().formatHex(hashBytes);
             this.file = file;
             try {
                 obj = GitObject.readFromHash(hash);
@@ -177,7 +176,7 @@ public record Tree(List<Entry> entries) implements GitObject {
 
         public byte[] toBytes() {
             byte[] meta = String.format("%d %s", permissions.mode, file).getBytes();
-            byte[] hashBytes = hexStringToByteArray(hash);
+            byte[] hashBytes = HexFormat.of().parseHex(hash);
             byte[] result = new byte[meta.length + hashBytes.length + 1];
             ByteBuffer bb = ByteBuffer.wrap(result);
             bb.put(meta);

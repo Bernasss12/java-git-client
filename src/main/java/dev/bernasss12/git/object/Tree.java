@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -107,7 +108,7 @@ public record Tree(List<Entry> entries) implements GitObject {
 
     @Override
     public byte[] toBytes() {
-        List<byte[]> content = entries.stream().map(Entry::toBytes).toList();
+        List<byte[]> content = entries.stream().sorted(Comparator.comparing(entry -> entry.file)).map(Entry::toBytes).toList();
         int length = content.stream().map(it -> it.length).reduce(0, Integer::sum);
         byte[] tree = String.format("tree %d\0", length).getBytes();
         byte[] result = new byte[length + tree.length];

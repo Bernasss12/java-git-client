@@ -12,9 +12,9 @@ import picocli.CommandLine;
 public class LsTreeCommand implements Callable<Void> {
 
     @CommandLine.Option(
-            names = { "--names-only" }
+            names = { "--name-only" }
     )
-    private boolean namesOnly;
+    private boolean nameOnly;
 
     @CommandLine.Parameters(
             paramLabel = "<sha-1>"
@@ -28,7 +28,7 @@ public class LsTreeCommand implements Callable<Void> {
             System.err.println("Error while getting tree from given hash.");
             return null;
         }
-        if (namesOnly) {
+        if (nameOnly) {
             tree.entries().forEach( entry -> {
                 System.out.println(entry.file);
             });

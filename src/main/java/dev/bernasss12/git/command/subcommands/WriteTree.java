@@ -1,6 +1,5 @@
 package dev.bernasss12.git.command.subcommands;
 
-import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
 import dev.bernasss12.git.object.GitObject;
@@ -13,8 +12,8 @@ import picocli.CommandLine;
 public class WriteTree implements Callable<Void> {
 
     @Override
-    public Void call(){
-        Tree root = Tree.fromPath(Paths.get("").toAbsolutePath());
+    public Void call() {
+        Tree root = Tree.fromPath(true);
         GitObject.writeToFile(root);
         System.out.println(root.getHash());
         GitObject read = GitObject.readFromHashAs(root.getHash());

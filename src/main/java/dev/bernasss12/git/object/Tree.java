@@ -3,6 +3,7 @@ package dev.bernasss12.git.object;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +30,11 @@ public record Tree(List<Entry> entries) implements GitObject {
         return new Tree(entries.stream().sorted(Comparator.comparing(entry -> entry.file)).toList());
     }
 
-    public static Tree fromPath(Path path) {
+    public static Tree fromPath(boolean write) {
+        return fromPath(Paths.get("").toAbsolutePath(), write);
+    }
+
+    public static Tree fromPath(Path path, boolean write) {
         File tree = path.toFile();
         if (!tree.exists() || !tree.isDirectory()) {
             throw new InvalidParameterException("Path must point to a real directory.");
@@ -41,7 +46,7 @@ public record Tree(List<Entry> entries) implements GitObject {
             if (child.getName().startsWith(".")) continue; // TODO implement gitignore at some point
             if (child.isDirectory()) {
                 mode = EntryMode.DIRECTORY;
-                Tree childTree = Tree.fromPath(child.toPath());
+                Tree childTree = Tree.fromPath(child.toPath(), write);
                 entries.add(
                         new Entry(
                                 mode,
@@ -65,7 +70,11 @@ public record Tree(List<Entry> entries) implements GitObject {
                 );
             }
         }
-        return new Tree(entries.stream().sorted(Comparator.comparing(entry -> entry.file)).toList());
+        Tree generated = new Tree(entries.stream().sorted(Comparator.comparing(entry -> entry.file)).toList());
+        if (write) {
+            GitObject.writeToFile(generated);
+        }
+        return generated;
     }
 
     /**

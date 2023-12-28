@@ -26,7 +26,7 @@ public record Blob(String contents) implements GitObject {
 
     @Override
     public byte[] toBytes() {
-        return ("blob " + contents.length() + "\0" + contents).getBytes();
+        return contents.getBytes();
     }
 
     @Override

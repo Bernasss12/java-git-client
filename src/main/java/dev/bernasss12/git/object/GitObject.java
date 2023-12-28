@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -81,10 +82,19 @@ public interface GitObject {
         File file = ROOT.resolve(pathFromHash(object.getHash())).toFile();
         file.getParentFile().mkdirs();
         try (final DeflaterOutputStream deflater = new DeflaterOutputStream(new FileOutputStream(file))) {
-            deflater.write(object.toBytes());
+            deflater.write(contentWithHeader(object));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static byte[] contentWithHeader(GitObject object) {
+        byte[] content = object.toBytes();
+        byte[] header = String.format("%s %d\0", object.getType(), content.length).getBytes();
+        ByteBuffer buffer = ByteBuffer.wrap(new byte[header.length + content.length]);
+        buffer.put(header);
+        buffer.put(content);
+        return buffer.array();
     }
 
     private static Path pathFromHash(String hash) {

@@ -110,10 +110,8 @@ public record Tree(List<Entry> entries) implements GitObject {
     public byte[] toBytes() {
         List<byte[]> content = entries.stream().map(Entry::toBytes).toList();
         int length = content.stream().map(it -> it.length).reduce(0, Integer::sum);
-        byte[] tree = String.format("tree %d\0", length).getBytes();
-        byte[] result = new byte[length + tree.length];
+        byte[] result = new byte[length];
         ByteBuffer buffer = ByteBuffer.wrap(result);
-        buffer.put(tree);
         content.forEach(buffer::put);
         return buffer.array();
     }

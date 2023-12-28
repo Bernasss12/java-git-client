@@ -7,7 +7,7 @@ import dev.bernasss12.git.object.Tree;
 import picocli.CommandLine;
 
 @CommandLine.Command(
-    name = "ls-tree"
+        name = "ls-tree"
 )
 public class LsTreeCommand implements Callable<Void> {
 
@@ -28,8 +28,9 @@ public class LsTreeCommand implements Callable<Void> {
             System.err.println("Error while getting tree from given hash.");
             return null;
         }
+        //System.out.println(tree.getFullTree());
         if (nameOnly) {
-            tree.entries().forEach( entry -> {
+            tree.entries().forEach(entry -> {
                 System.out.println(entry.file);
             });
             return null;

@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,6 +18,7 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
 import dev.bernasss12.git.util.ArrayUtils;
+import dev.bernasss12.git.util.ByteArrayBuilder;
 
 public interface GitObject {
 
@@ -63,10 +65,12 @@ public interface GitObject {
 
     static void writeToFile(GitObject object) {
         File file = ROOT.resolve(pathFromHash(object.getHash())).toFile();
-        // If the file already exists there is no point overriding it as it's very unlikely this is a hash collision.
+        // If the file already exists, there is no point overriding it as it's very unlikely this is a hash collision.
         if (file.exists()) return;
         if(!file.getParentFile().mkdirs()) {
-            System.err.printf("Unable to create parent file: %s", file.getParent());
+            if (!file.getParentFile().exists()) {
+                System.err.printf("Unable to create parent file: %s\n", file.getParent());
+            }
         }
         try (final DeflaterOutputStream deflater = new DeflaterOutputStream(new FileOutputStream(file))) {
             deflater.write(contentWithHeader(object));
@@ -77,21 +81,24 @@ public interface GitObject {
 
     private static byte[] contentWithHeader(GitObject object) {
         byte[] content = object.toBytes();
-        byte[] header = String.format("%s %d\0", object.getType(), content.length).getBytes();
-        ByteBuffer buffer = ByteBuffer.wrap(new byte[header.length + content.length]);
+        byte[] header = header(object.getType(), content.length);
+        ByteArrayBuilder buffer = new ByteArrayBuilder();
         buffer.put(header);
         buffer.put(content);
-        return buffer.array();
+        return buffer.getArray();
+    }
+
+    private static byte[] header(String type, int length) {
+        ByteArrayBuilder builder = new ByteArrayBuilder();
+        builder.puts(type);
+        builder.put((byte) ' ');
+        builder.puts(String.valueOf(length));
+        builder.put((byte) '\0');
+        return builder.getArray();
     }
 
     private static Path pathFromHash(String hash) {
         return Paths.get(hash.substring(0, 2), hash.substring(2));
-    }
-
-    private static String hashFromPath(Path path) {
-        String start = path.getParent().getFileName().toString();
-        String end = path.getFileName().toString();
-        return start + end;
     }
 
     String getContentAsString();

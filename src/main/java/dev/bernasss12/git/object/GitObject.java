@@ -20,23 +20,6 @@ import dev.bernasss12.git.util.ArrayUtils;
 
 public interface GitObject {
 
-    public static GitObject NotFound = new GitObject() {
-        @Override
-        public String getContentAsString() {
-            return "";
-        }
-
-        @Override
-        public String getType() {
-            return "<n/a>";
-        }
-
-        @Override
-        public byte[] toBytes() {
-            return new byte[0];
-        }
-    };
-
     Path ROOT = Paths.get(".git", "objects");
 
     /**
@@ -58,7 +41,7 @@ public interface GitObject {
                 default -> throw new IllegalArgumentException("\"" + type + "\" is not a supported git file type.");
             };
         } catch (FileNotFoundException e) {
-            return NotFound;
+            return null;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -150,18 +150,16 @@ public record Tree(List<Entry> entries) implements GitObject {
         private final EntryMode permissions;
         private final String hash;
         public final String file;
-        private String type;
+        private final String type;
 
-        private GitObject obj;
+        private final GitObject obj;
 
         public Entry(int permissions, byte[] hashBytes, String file) {
             this.permissions = EntryMode.fromMode(permissions);
             this.hash = HexFormat.of().formatHex(hashBytes);
             this.file = file;
-            try {
-                obj = GitObject.readFromHash(hash);
-                this.type = obj.getType();
-            } catch (Exception ignored) {}
+            this.obj = GitObject.readFromHash(hash);
+            this.type = this.obj == null ? (this.permissions == EntryMode.DIRECTORY ? "tree" : "blob") : this.obj.getType();
         }
 
         public Entry(EntryMode mode, GitObject obj, String file) {

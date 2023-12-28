@@ -63,7 +63,11 @@ public interface GitObject {
 
     static void writeToFile(GitObject object) {
         File file = ROOT.resolve(pathFromHash(object.getHash())).toFile();
-        file.getParentFile().mkdirs();
+        // If the file already exists there is no point overriding it as it's very unlikely this is a hash collision.
+        if (file.exists()) return;
+        if(!file.getParentFile().mkdirs()) {
+            System.err.printf("Unable to create parent file: %s", file.getParent());
+        }
         try (final DeflaterOutputStream deflater = new DeflaterOutputStream(new FileOutputStream(file))) {
             deflater.write(contentWithHeader(object));
         } catch (IOException e) {

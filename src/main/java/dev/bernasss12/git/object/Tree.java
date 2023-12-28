@@ -1,7 +1,6 @@
 package dev.bernasss12.git.object;
 
 import java.io.File;
-import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidParameterException;
@@ -66,9 +65,7 @@ public record Tree(List<Entry> entries) implements GitObject {
             } else {
                 mode = child.canExecute() ?
                         EntryMode.REGULAR_EXECUTABLE :
-                        child.canWrite() ?
-                                EntryMode.REGULAR_NON_EXECUTABLE_GROUP_WRITABLE :
-                                EntryMode.REGULAR_NON_EXECUTABLE;
+                        EntryMode.REGULAR_NON_EXECUTABLE;
                 Blob childBlob = Blob.readBlobFromFile(child.toPath());
                 if (write) {
                     GitObject.writeToFile(childBlob);
@@ -172,7 +169,7 @@ public record Tree(List<Entry> entries) implements GitObject {
         public final String file;
         private final String type;
 
-        private final GitObject obj;
+        public final GitObject obj;
 
         public Entry(String permissions, byte[] hashBytes, String file) {
             this.permissions = EntryMode.fromMode(permissions);

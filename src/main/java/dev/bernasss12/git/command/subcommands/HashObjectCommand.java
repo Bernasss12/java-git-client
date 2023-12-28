@@ -5,12 +5,15 @@ import java.util.concurrent.Callable;
 
 import dev.bernasss12.git.object.Blob;
 import dev.bernasss12.git.object.GitObject;
-import picocli.CommandLine.*;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(
         name = "hash-object"
 )
 public class HashObjectCommand implements Callable<Void> {
+
     @Option(
             names = { "-w" },
             description = "Actually write the object into the object database."

@@ -5,8 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -51,6 +49,7 @@ public interface GitObject {
 
     /**
      * Tries to read the file from hash.
+     *
      * @param hash Hash of file contents
      * @return The object read from the disk or null if the types don't match.
      */
@@ -67,7 +66,7 @@ public interface GitObject {
         File file = ROOT.resolve(pathFromHash(object.getHash())).toFile();
         // If the file already exists, there is no point overriding it as it's very unlikely this is a hash collision.
         if (file.exists()) return;
-        if(!file.getParentFile().mkdirs()) {
+        if (!file.getParentFile().mkdirs()) {
             if (!file.getParentFile().exists()) {
                 System.err.printf("Unable to create parent file: %s\n", file.getParent());
             }
@@ -102,6 +101,7 @@ public interface GitObject {
     }
 
     String getContentAsString();
+
     String getType();
 
     byte[] toBytes();

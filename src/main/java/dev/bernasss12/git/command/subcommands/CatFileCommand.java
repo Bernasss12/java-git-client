@@ -3,7 +3,9 @@ package dev.bernasss12.git.command.subcommands;
 import java.util.concurrent.Callable;
 
 import dev.bernasss12.git.object.GitObject;
-import picocli.CommandLine.*;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(
         name = "cat-file",

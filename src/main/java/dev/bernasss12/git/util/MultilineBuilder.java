@@ -1,6 +1,7 @@
 package dev.bernasss12.git.util;
 
 public class MultilineBuilder {
+
     private final StringBuilder builder = new StringBuilder();
 
     public void append(String string) {

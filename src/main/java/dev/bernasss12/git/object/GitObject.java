@@ -102,7 +102,7 @@ public interface GitObject {
     default String getHash() {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            byte[] hash = digest.digest(toBytes());
+            byte[] hash = digest.digest(contentWithHeader(this));
             return HexFormat.of().formatHex(hash);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);

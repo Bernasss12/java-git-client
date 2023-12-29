@@ -1,5 +1,11 @@
 package dev.bernasss12.git.object;
 
+import java.util.Arrays;
+
+import static dev.bernasss12.git.util.ArrayUtils.findAllStartingWith;
+import static dev.bernasss12.git.util.ArrayUtils.findStartingWith;
+import static dev.bernasss12.git.util.ArrayUtils.indexOfMatching;
+import static dev.bernasss12.git.util.ArrayUtils.subarray;
 import dev.bernasss12.git.util.Identity;
 import dev.bernasss12.git.util.MultilineBuilder;
 import dev.bernasss12.git.util.Timestamp;
@@ -35,6 +41,26 @@ public class Commit implements GitObject {
                 ts,
                 ts,
                 new String[] { message }
+        );
+    }
+
+    public static Commit fromBytes(byte[] bytes) {
+        String[] lines = new String(bytes).split("\n");
+
+        String tree = findStartingWith(lines, "tree").substring(5);
+        String[] parents = Arrays.stream(findAllStartingWith(lines, "parent")).map(it -> it.substring(7)).toArray(String[]::new);
+        String author = findStartingWith(lines, "author");
+        String committer = findStartingWith(lines, "committer");
+        String[] message = subarray(lines, indexOfMatching(lines, String::isEmpty) + 1);
+
+        return new Commit(
+                tree,
+                parents,
+                Identity.extract(author),
+                Identity.extract(committer),
+                Timestamp.extract(author),
+                Timestamp.extract(committer),
+                message
         );
     }
 

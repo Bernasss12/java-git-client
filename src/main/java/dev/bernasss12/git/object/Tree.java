@@ -164,12 +164,11 @@ public record Tree(List<Entry> entries) implements GitObject {
 
     public static class Entry {
 
+        public final String file;
+        public final GitObject obj;
         private final EntryMode permissions;
         private final String hash;
-        public final String file;
         private final String type;
-
-        public final GitObject obj;
 
         public Entry(String permissions, byte[] hashBytes, String file) {
             this.permissions = EntryMode.fromMode(permissions);

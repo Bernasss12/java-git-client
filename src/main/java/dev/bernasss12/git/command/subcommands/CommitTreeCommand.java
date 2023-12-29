@@ -10,6 +10,7 @@ import picocli.CommandLine;
         name = "commit-tree"
 )
 public class CommitTreeCommand implements Callable<Void> {
+
     @CommandLine.Parameters(
             paramLabel = "<tree-sha>"
     )

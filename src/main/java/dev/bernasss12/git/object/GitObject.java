@@ -38,6 +38,7 @@ public interface GitObject {
             return switch (type) {
                 case "blob" -> Blob.fromBytes(content);
                 case "tree" -> Tree.fromBytes(content);
+                case "commit" -> Commit.fromBytes(content);
                 default -> throw new IllegalArgumentException("\"" + type + "\" is not a supported git file type.");
             };
         } catch (FileNotFoundException e) {

@@ -9,6 +9,7 @@ public record Identity(
 ) {
 
     private static final Pattern pattern = Pattern.compile("\\s(.*)<(.*)>");
+
     public static Identity extract(String string) {
         Matcher matcher = pattern.matcher(string);
         if (!matcher.find() || !(matcher.groupCount() == 2)) {

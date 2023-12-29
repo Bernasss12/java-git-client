@@ -2,6 +2,7 @@ package dev.bernasss12.git.command;
 
 import dev.bernasss12.git.command.subcommands.CatFileCommand;
 import dev.bernasss12.git.command.subcommands.CleanCommand;
+import dev.bernasss12.git.command.subcommands.CommitTreeCommand;
 import dev.bernasss12.git.command.subcommands.HashObjectCommand;
 import dev.bernasss12.git.command.subcommands.InitCommand;
 import dev.bernasss12.git.command.subcommands.LsTreeCommand;
@@ -16,7 +17,8 @@ import picocli.CommandLine;
                 CleanCommand.class,
                 HashObjectCommand.class,
                 LsTreeCommand.class,
-                WriteTree.class
+                WriteTree.class,
+                CommitTreeCommand.class
         }
 )
 public class GitCommand {}

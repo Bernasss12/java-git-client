@@ -8,6 +8,10 @@ public class MultilineBuilder {
         builder.append(string);
     }
 
+    public void appendfln(String str, Object... args) {
+        appendln(String.format(str, args));
+    }
+
     public void appendln() {
         builder.append(System.lineSeparator());
     }
